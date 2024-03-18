@@ -1,22 +1,27 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets._Scripts.Managers
 {
     public class LabManager : MonoBehaviour
     {
+        [SerializeField] private ParticleSystem _fumes;
+
+        [Header("Flask Outline Controller")]
         [SerializeField] private Outline _flaskA;
+
         [SerializeField] private Outline _flaskB;
         [SerializeField] private Outline _testTube;
 
-        [SerializeField] private Material _flaskAMaterial;
-        [SerializeField] private Material _flaskBMaterial;
-        [SerializeField] private Material _testTubeMaterial;
+        private LiquidLevelController _flaskALevelController;
+        private LiquidLevelController _flaskBLevelController;
+        private LiquidLevelController _testTubeLevelController;
+
+        private LiquidColorController _flaskAColorController;
 
         private Collider _flaskACollider;
         private Collider _flaskBCollider;
         private Collider _testTubeCollider;
-
-        [SerializeField] private LayerMask _selectableLayerMask;
 
         private void Start()
         {
@@ -27,6 +32,12 @@ namespace Assets._Scripts.Managers
             _flaskACollider = _flaskA.GetComponent<Collider>();
             _flaskBCollider = _flaskB.GetComponent<Collider>();
             _testTubeCollider = _testTube.GetComponent<Collider>();
+
+            _flaskALevelController = _flaskA.GetComponent<LiquidLevelController>();
+            _flaskBLevelController = _flaskB.GetComponent<LiquidLevelController>();
+            _testTubeLevelController = _testTube.GetComponent<LiquidLevelController>();
+
+            _flaskAColorController = _flaskA.GetComponent<LiquidColorController>();
 
             _flaskACollider.enabled = false;
             _flaskBCollider.enabled = false;
@@ -40,6 +51,7 @@ namespace Assets._Scripts.Managers
             switch (currentState)
             {
                 case GameState.Welcome:
+                    ResetFlasks();
                     break;
 
                 case GameState.Experiment1:
@@ -47,6 +59,8 @@ namespace Assets._Scripts.Managers
                     break;
 
                 case GameState.Experiment1End:
+                    Mix(ref _flaskALevelController);
+                    _flaskAColorController.ChangeLiquidColor();
                     _flaskA.enabled = false;
                     break;
 
@@ -55,12 +69,24 @@ namespace Assets._Scripts.Managers
                     break;
 
                 case GameState.Experiment2End:
+                    Mix(ref _flaskBLevelController);
+                    _fumes.Play();
                     _flaskB.enabled = false;
                     break;
 
                 case GameState.End:
+                    _fumes.Stop();
                     break;
             }
+        }
+
+        private void ResetFlasks()
+        {
+            _flaskALevelController.ResetLiquidLevel();
+            _flaskBLevelController.ResetLiquidLevel();
+            _testTubeLevelController.ResetLiquidLevel();
+
+            _flaskAColorController.ResetLiquidColor();
         }
 
         private void StartExperiment(Collider flaskCollider, Outline flask)
@@ -69,6 +95,10 @@ namespace Assets._Scripts.Managers
             flaskCollider.enabled = true;
         }
 
+        /// <summary>
+        /// Handles the selection of objects in the lab.
+        /// </summary>
+        /// <param name="objectTag">The tag of the selected object.</param>
         public void OnObjectSelected(string objectTag)
         {
             if (objectTag == "Flask")
@@ -87,8 +117,10 @@ namespace Assets._Scripts.Managers
             }
         }
 
-        private void Update()
+        private void Mix(ref LiquidLevelController flaskLevelController)
         {
+            flaskLevelController.ChangeLiquidLevel(false);
+            _testTubeLevelController.ChangeLiquidLevel(true);
         }
     }
 }

@@ -88,12 +88,10 @@ namespace Assets._Scripts.Managers
         {
             if (objectTag == "Flask")
             {
-                Debug.Log("Flask selected");
                 _instructionsText.text = CLICK_HIGHLIGHTED_TESTTUBE_S;
             }
             else if (objectTag == "TestTube")
             {
-                Debug.Log("TestTube selected");
                 _instructionsText.text = "Click on the Mix button to Mix the contents!";
                 _mixButtonText.text = "Mix";
                 _mixButtonTransform.gameObject.SetActive(true);
