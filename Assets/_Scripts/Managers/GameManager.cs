@@ -38,6 +38,10 @@ namespace Assets._Scripts.Managers
                 UpdateGameState(GameState.Experiment1);
         }
 
+        /// <summary>
+        /// Updates the game state to the specified next state.
+        /// </summary>
+        /// <param name="nextState">The next state to update to.</param>
         public void UpdateGameState(GameState nextState)
         {
             CurrentGameState = nextState;
